@@ -1,0 +1,578 @@
+/* Import Web Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Elegant Dark Design Theme CSS Variables */
+:root {
+    --primary-color: #FF5200;    /* Accent: Electric Vivid Orange */
+    --primary-hover: #E04800;    /* Accent Hover */
+    --bg-color: #0A0A0A;         /* Primary Background: Deep charcoal/black */
+    --surface-color: #161616;    /* Surface: Main cards, layout wrapper, nav, footer */
+    --surface-light: #222222;    /* Surface Light: Secondary tiles, input boxes, active tabs */
+    --text-color: #FFFFFF;       /* Primary Text Color */
+    --text-muted: #A0A0A0;       /* Muted text grey */
+    --border-color: #2A2A2A;     /* Sleek layout bounds and border dividers */
+    
+    --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Space Grotesk', var(--font-inter);
+}
+
+/* Global Reset & Base Styling */
+body {
+    font-family: var(--font-inter);
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Scrollbar Customization for Dark Aesthetic */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--surface-light);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-color);
+}
+
+/* --- BOOTSTRAP INJECTIVE OVERRIDES --- */
+/* Override Default Background Utilities */
+.bg-light {
+    background-color: var(--bg-color) !important;
+}
+
+.bg-white {
+    background-color: var(--surface-color) !important;
+}
+
+.bg-light-custom {
+    background-color: var(--surface-light) !important;
+}
+
+.bg-orange-subtle, .bg-warning-subtle {
+    background-color: rgba(255, 82, 0, 0.1) !important;
+    color: var(--primary-color) !important;
+}
+
+.bg-success-subtle {
+    background-color: rgba(72, 196, 121, 0.1) !important;
+    color: #48C479 !important;
+}
+
+.bg-info-subtle {
+    background-color: rgba(52, 188, 255, 0.1) !important;
+    color: #34bcff !important;
+}
+
+/* Override Text Color Utilities to match Elegant Dark */
+.text-dark, .text-black, h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color) !important;
+}
+
+.text-muted, .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+/* Override Card and Layout Borders */
+.card {
+    background-color: var(--surface-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.border, .border-bottom, .border-top, .border-start, .border-end {
+    border-color: var(--border-color) !important;
+}
+
+hr {
+    border-color: var(--border-color) !important;
+    opacity: 1 !important;
+}
+
+/* --- CUSTOM UTILITIES & HELPERS --- */
+.bg-orange {
+    background-color: var(--primary-color) !important;
+}
+
+.text-orange {
+    color: var(--primary-color) !important;
+}
+
+.bg-dark-custom {
+    background-color: var(--surface-light) !important;
+}
+
+.text-muted-light {
+    color: var(--text-muted) !important;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace !important;
+}
+
+h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+}
+
+.fs-7 {
+    font-size: 0.875rem;
+}
+
+.fs-8 {
+    font-size: 0.75rem;
+}
+
+.fs-9 {
+    font-size: 0.65rem;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+/* --- BUTTON & LINK INTERACTIVES --- */
+.btn-orange {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    border: none !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-orange:hover, .btn-orange:focus {
+    background-color: var(--primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 82, 0, 0.35) !important;
+}
+
+.btn-outline-orange {
+    color: var(--primary-color) !important;
+    border: 2px solid var(--primary-color) !important;
+    background-color: transparent !important;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-orange:hover, .btn-outline-orange:focus {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(255, 82, 0, 0.25);
+}
+
+.btn-light {
+    background-color: var(--surface-light) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+.btn-light:hover {
+    background-color: var(--border-color) !important;
+}
+
+.btn-outline-secondary {
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--surface-light) !important;
+    color: var(--text-color) !important;
+}
+
+.hover-orange {
+    transition: all 0.2s ease;
+}
+
+.hover-orange:hover {
+    color: var(--primary-color) !important;
+    background-color: rgba(255, 82, 0, 0.08) !important;
+}
+
+/* Card Hover Animations & Transformations */
+.hover-up {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-up:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* --- BRAND LEVEL DESIGN ELEMENTS --- */
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary-color) !important;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+}
+
+/* Navigation Overrides */
+.navbar {
+    background-color: var(--surface-color) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+.navbar .nav-link {
+    color: var(--text-color) !important;
+    opacity: 0.8;
+}
+
+.navbar .nav-link:hover, .navbar .nav-link.active {
+    opacity: 1;
+    color: var(--primary-color) !important;
+}
+
+.navbar-toggler-icon {
+    filter: invert(1); /* Ensure navigation hamburger menu stays white */
+}
+
+/* Dropdown Menu overrides */
+.dropdown-menu {
+    background-color: var(--surface-light) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dropdown-item {
+    color: var(--text-color) !important;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+.dropdown-divider {
+    border-top: 1px solid var(--border-color) !important;
+}
+
+/* --- LISTING & CARS DETAILS ELEMENTS --- */
+.restaurant-card {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface-color) !important;
+    box-shadow: none !important;
+}
+
+.restaurant-img-container {
+    position: relative;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+}
+
+.restaurant-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.restaurant-card:hover .restaurant-img-container img {
+    transform: scale(1.05);
+}
+
+.discount-badge {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0.95) 100%);
+    color: #ffffff;
+    right: 12px;
+    padding: 10px 12px 6px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+/* Pizza, burger categories horizontal */
+.category-item {
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.category-item:hover {
+    transform: scale(1.06);
+}
+
+.category-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--surface-light);
+    border: 3px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.category-item:hover .category-img {
+    border-color: var(--primary-color);
+}
+
+/* Hero Section */
+.hero-sec {
+    background: linear-gradient(135deg, #161616 0%, #0A0A0A 100%) !important;
+    position: relative;
+    overflow: hidden;
+    padding: 80px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(255, 82, 0, 0.15);
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+}
+
+/* Floating delivery review cards in Hero */
+.animate-float {
+    background-color: var(--surface-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Food quality badges styling */
+.veg-badge, .nonveg-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: 2px solid;
+    padding: 2px;
+    margin-right: 8px;
+}
+
+.veg-badge {
+    border-color: #0f8a65;
+}
+
+.veg-badge::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #0f8a65;
+}
+
+.nonveg-badge {
+    border-color: #e44d3a;
+}
+
+.nonveg-badge::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-bottom: 6px solid #e44d3a;
+}
+
+/* Menu Items lists */
+.menu-item-row {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.menu-item-row:hover {
+    background-color: var(--surface-light);
+}
+
+.menu-item-img-container {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.menu-item-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Tabs & Custom Pilling */
+.nav-pills-custom .nav-link {
+    background-color: transparent;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    font-weight: 600;
+}
+
+.nav-pills-custom .nav-link.active {
+    color: var(--primary-color) !important;
+    background-color: transparent;
+    border-color: var(--primary-color);
+}
+
+/* --- FORMS & DIALOG ELEMENTS --- */
+.auth-container {
+    max-width: 450px;
+    margin: 60px auto;
+}
+
+.auth-card {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 20px;
+    background-color: var(--surface-color) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Text Fields Inputs styling override */
+.form-control, .form-select, textarea, 
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+    background-color: var(--surface-light) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.form-control:focus, .form-select:focus, textarea:focus,
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+    background-color: var(--surface-light) !important;
+    color: var(--text-color) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(255, 82, 0, 0.2) !important;
+}
+
+.form-floating > label {
+    color: var(--text-muted) !important;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--primary-color);
+}
+
+/* Dynamic rating stars boxes */
+.badge.bg-success {
+    background-color: #2D3A2D !important;
+    color: #48C479 !important;
+    border: 1px solid #1c5230 !important;
+}
+
+.badge.bg-light.text-dark {
+    background-color: var(--surface-light) !important;
+    color: var(--text-color) !important;
+}
+
+/* --- CART TABLE & RECEIPTS --- */
+.cart-product-img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Multistep Indicators */
+.checkout-steps::before {
+    background-color: var(--border-color);
+}
+
+.checkout-step-icon {
+    background-color: var(--surface-light);
+    border: 3px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+.checkout-step-item.active .checkout-step-icon {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.checkout-step-item.completed .checkout-step-icon {
+    border-color: #48C479;
+    background-color: #2D3A2D;
+    color: #48C479;
+}
+
+/* --- PROFILE SIDEBAR PANEL --- */
+.profile-sidebar-item {
+    color: var(--text-color);
+}
+
+.profile-sidebar-item:hover, .profile-sidebar-item.active {
+    background-color: rgba(255, 82, 0, 0.1) !important;
+    color: var(--primary-color) !important;
+    border: 1px solid var(--border-color);
+}
+
+/* Tables handling for reports, bills, checkouts list */
+.table {
+    background: transparent !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Footer Section */
+footer, .footer {
+    background-color: var(--surface-color) !important;
+    border-top: 1px solid var(--border-color) !important;
+    color: var(--text-muted) !important;
+}
+
+/* Modals Override */
+.modal-content {
+    background-color: var(--surface-color) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+.modal-header, .modal-footer {
+    border-color: var(--border-color) !important;
+}
+
+/* Alerts Override */
+.alert {
+    background-color: var(--surface-light) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+.alert-success {
+    background-color: rgba(72, 196, 121, 0.15) !important;
+    border-color: rgba(72, 196, 121, 0.3) !important;
+    color: #48C479 !important;
+}
+.alert-danger {
+    background-color: rgba(228, 77, 58, 0.15) !important;
+    border-color: rgba(228, 77, 58, 0.3) !important;
+    color: #e44d3a !important;
+}
