@@ -1,7 +1,7 @@
 package com.hungrygo.controller;
 
-import com.hungrygo.dao.OrderDAO;
-import com.hungrygo.dao.impl.OrderDAOImpl;
+import com.hungrygo.model.dao.OrderDAO;
+import com.hungrygo.model.dao.impl.OrderDAOImpl;
 import com.hungrygo.model.Cart;
 import com.hungrygo.model.CartItem;
 import com.hungrygo.model.Order;
@@ -67,7 +67,7 @@ public class CheckoutServlet extends HttpServlet {
 
         Cart cart = (Cart) session.getAttribute("cart");
         if (cart == null || cart.getItems().isEmpty()) {
-            response.sendRedirect("cart.jsp");
+            response.sendRedirect("cart");
             return;
         }
 
@@ -138,7 +138,7 @@ public class CheckoutServlet extends HttpServlet {
             response.addCookie(cartDataCookie);
 
             // Redirect to the order confirmation page
-            response.sendRedirect("success.jsp?orderId=" + orderId + "&total=" + grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            response.sendRedirect("jsp/success.jsp?orderId=" + orderId + "&total=" + grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
         } else {
             response.sendRedirect("checkout?error=failed");
         }

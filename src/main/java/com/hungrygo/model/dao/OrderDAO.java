@@ -1,4 +1,4 @@
-package com.hungrygo.dao;
+package com.hungrygo.model.dao;
 
 import com.hungrygo.model.Order;
 import java.util.List;

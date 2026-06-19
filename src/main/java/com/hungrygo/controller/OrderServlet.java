@@ -1,7 +1,7 @@
 package com.hungrygo.controller;
 
-import com.hungrygo.dao.OrderDAO;
-import com.hungrygo.dao.impl.OrderDAOImpl;
+import com.hungrygo.model.dao.OrderDAO;
+import com.hungrygo.model.dao.impl.OrderDAOImpl;
 import com.hungrygo.model.Order;
 
 import jakarta.servlet.ServletException;

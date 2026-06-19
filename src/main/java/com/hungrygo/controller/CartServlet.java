@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Cookie;
 
-import com.hungrygo.dao.MenuItemDAO;
-import com.hungrygo.dao.impl.MenuItemDAOImpl;
+import com.hungrygo.model.dao.MenuItemDAO;
+import com.hungrygo.model.dao.impl.MenuItemDAOImpl;
 import com.hungrygo.model.Cart;
 import com.hungrygo.model.MenuItem;
 

@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ page import="com.hungrygo.dao.RestaurantDAO" %>
-<%@ page import="com.hungrygo.dao.impl.RestaurantDAOImpl" %>
+<%@ page import="com.hungrygo.model.dao.RestaurantDAO" %>
+<%@ page import="com.hungrygo.model.dao.impl.RestaurantDAOImpl" %>
 <%@ page import="com.hungrygo.model.Restaurant" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>

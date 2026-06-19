@@ -1,7 +1,7 @@
 package com.hungrygo.controller;
 
-import com.hungrygo.dao.UserDAO;
-import com.hungrygo.dao.impl.UserDAOImpl;
+import com.hungrygo.model.dao.UserDAO;
+import com.hungrygo.model.dao.impl.UserDAOImpl;
 import com.hungrygo.model.User;
 
 import jakarta.servlet.ServletException;
@@ -53,14 +53,14 @@ public class LoginServlet extends HttpServlet {
             expireCookie(response, "cartCount");
 
             // Redirect back to home page
-            response.sendRedirect("index.jsp?msg=logged_out");
+            response.sendRedirect("index?msg=logged_out");
             return;
         }
 
         // If user is already logged in, redirect to restaurants page
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("username") != null) {
-            response.sendRedirect("restaurants.jsp");
+            response.sendRedirect("restaurants");
             return;
         }
 
@@ -105,7 +105,7 @@ public class LoginServlet extends HttpServlet {
             System.out.println("Login successful. Redirecting to restaurants.jsp...");
             
             // Redirect to restaurants
-            response.sendRedirect("restaurants.jsp");
+            response.sendRedirect("restaurants");
         } else {
             System.out.println("Login failed for user " + email);
             request.setAttribute("error", "Incorrect email address or password. Please try again!");

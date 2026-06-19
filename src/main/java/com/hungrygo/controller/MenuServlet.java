@@ -6,11 +6,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.hungrygo.dao.RestaurantDAO;
-import com.hungrygo.dao.impl.RestaurantDAOImpl;
+import com.hungrygo.model.dao.RestaurantDAO;
+import com.hungrygo.model.dao.impl.RestaurantDAOImpl;
 import com.hungrygo.model.Restaurant;
-import com.hungrygo.dao.MenuItemDAO;
-import com.hungrygo.dao.impl.MenuItemDAOImpl;
+import com.hungrygo.model.dao.MenuItemDAO;
+import com.hungrygo.model.dao.impl.MenuItemDAOImpl;
 import com.hungrygo.model.MenuItem;
 
 import java.io.IOException;

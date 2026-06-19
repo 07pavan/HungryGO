@@ -1,6 +1,6 @@
-package com.hungrygo.dao.impl;
+package com.hungrygo.model.dao.impl;
 
-import com.hungrygo.dao.OrderDAO;
+import com.hungrygo.model.dao.OrderDAO;
 import com.hungrygo.model.Order;
 import com.hungrygo.model.OrderItem;
 import com.hungrygo.model.MenuItem;

@@ -2,10 +2,10 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ page import="com.hungrygo.model.Restaurant" %>
 <%@ page import="com.hungrygo.model.MenuItem" %>
-<%@ page import="com.hungrygo.dao.RestaurantDAO" %>
-<%@ page import="com.hungrygo.dao.impl.RestaurantDAOImpl" %>
-<%@ page import="com.hungrygo.dao.MenuItemDAO" %>
-<%@ page import="com.hungrygo.dao.impl.MenuItemDAOImpl" %>
+<%@ page import="com.hungrygo.model.dao.RestaurantDAO" %>
+<%@ page import="com.hungrygo.model.dao.impl.RestaurantDAOImpl" %>
+<%@ page import="com.hungrygo.model.dao.MenuItemDAO" %>
+<%@ page import="com.hungrygo.model.dao.impl.MenuItemDAOImpl" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.math.BigDecimal" %>
 <%
