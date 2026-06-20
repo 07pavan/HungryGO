@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
     if (request.getAttribute("orders") == null) {
-        response.sendRedirect("orders");
+        response.sendRedirect(request.getContextPath() + "/orders");
         return;
     }
 %>
