@@ -159,5 +159,86 @@
             document.getElementById('cart-cost-display').innerText = '₹' + total.toFixed(2);
         }
     </script>
+
+    <!-- Self-contained AJAX Add-to-Cart for burger detail page -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('burger-add-form');
+            if (!form) return;
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                var btn      = form.querySelector('button[type="submit"]');
+                var origHtml = btn ? btn.innerHTML : '';
+
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Adding…';
+                }
+
+                fetch(form.getAttribute('action'), {
+                    method : 'POST',
+                    body   : new URLSearchParams(new FormData(form)),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept'          : 'application/json',
+                        'Content-Type'    : 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then(function (resp) {
+                    if (resp.status === 401) {
+                        return resp.json().then(function (d) {
+                            window.location.href = d.redirect || '${pageContext.request.contextPath}/login?msg=auth_required';
+                            throw new Error('auth');
+                        });
+                    }
+                    return resp.json();
+                })
+                .then(function (data) {
+                    if (!data) return;
+                    if (data.success) {
+                        if (btn) {
+                            btn.classList.remove('btn-orange');
+                            btn.classList.add('btn-success');
+                            btn.innerHTML = '<i class="bi bi-check-lg"></i> Added to Cart!';
+                            setTimeout(function () {
+                                btn.disabled = false;
+                                btn.innerHTML = origHtml;
+                                btn.classList.remove('btn-success');
+                                btn.classList.add('btn-orange');
+                            }, 1800);
+                        }
+                        var cartSize = data.cartSize;
+                        var badge = document.getElementById('nav-cart-badge');
+                        if (badge) {
+                            badge.textContent = cartSize;
+                            badge.classList.remove('pulse-animation');
+                            void badge.offsetWidth;
+                            badge.classList.add('pulse-animation');
+                        }
+                        var bar = document.getElementById('floating-cart-bar');
+                        if (bar) {
+                            var txt = document.getElementById('floating-cart-text');
+                            if (txt) {
+                                txt.innerHTML = '<span id="floating-cart-qty" class="font-mono">' + cartSize + '</span>&nbsp;' +
+                                    (cartSize === 1 ? 'Item' : 'Items') + ' Selected';
+                            }
+                            bar.classList.remove('d-none');
+                            setTimeout(function () { bar.classList.add('show'); }, 10);
+                        }
+                    } else if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                })
+                .catch(function (err) {
+                    if (err.message !== 'auth' && btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = origHtml;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
