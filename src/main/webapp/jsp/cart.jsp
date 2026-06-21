@@ -129,7 +129,7 @@
                     
                     <c:if test="${promoApplied}">
                         <div class="alert alert-success py-2 px-3 fs-8 mt-3 mb-0 rounded-3 d-flex align-items-center justify-content-between text-success" id="promo-success-box">
-                            <span><i class="bi bi-check-circle-fill me-1"></i> Coupon applied! Flat ₹2.00 off.</span>
+                            <span><i class="bi bi-check-circle-fill me-1"></i> Coupon applied! Flat ₹<c:out value="${discount}" /> off.</span>
                             <button class="btn btn-sm text-danger p-0 border-0 bg-transparent fw-bold fs-8" onclick="removePromo()">Remove</button>
                         </div>
                     </c:if>
