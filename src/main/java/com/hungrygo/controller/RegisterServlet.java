@@ -113,7 +113,7 @@ public class RegisterServlet extends HttpServlet {
             // Redirect to home page with success message
             session.setAttribute("successMessage", "Registration completed successfully! Welcome to HungryGO.");
             
-            response.sendRedirect(request.getContextPath() + "/jsp/index.jsp");
+            response.sendRedirect(request.getContextPath() + "/home");
         } else {
             request.setAttribute("error", "Registration transaction failed due to a database/SQL exception.");
             request.getRequestDispatcher("/jsp/register.jsp").forward(request, response);

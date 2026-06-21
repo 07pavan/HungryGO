@@ -29,7 +29,7 @@ public class ProfileServlet extends HttpServlet {
         HttpSession session = request.getSession();
         // Check if user is logged in
         if (session.getAttribute("username") == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -45,6 +45,7 @@ public class ProfileServlet extends HttpServlet {
             session.setAttribute("address", user.getAddress());
         }
 
+        request.setAttribute("profileVerified", true);
         request.getRequestDispatcher("/jsp/profile.jsp").forward(request, response);
     }
 
@@ -56,7 +57,7 @@ public class ProfileServlet extends HttpServlet {
         HttpSession session = request.getSession();
         // Check if user is logged in
         if (session.getAttribute("username") == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -83,6 +84,12 @@ public class ProfileServlet extends HttpServlet {
                     session.setAttribute("username", user.getName());
                     session.setAttribute("phone", user.getPhone());
                     session.setAttribute("address", user.getAddress());
+                    
+                    // Update cookies for frontend sync
+                    addStateCookie(response, "username", user.getName());
+                    addStateCookie(response, "phone", user.getPhone());
+                    addStateCookie(response, "address", user.getAddress());
+                    
                     request.setAttribute("success", "Profile updated successfully!");
                 } else {
                     request.setAttribute("error", "Failed to update profile settings in database.");
@@ -108,6 +115,23 @@ public class ProfileServlet extends HttpServlet {
             }
         }
 
+        request.setAttribute("profileVerified", true);
         request.getRequestDispatcher("/jsp/profile.jsp").forward(request, response);
+    }
+
+    /**
+     * Helper to set a state cookie for frontend sync
+     */
+    private void addStateCookie(HttpServletResponse response, String name, String value) {
+        if (value == null) return;
+        try {
+            String encodedValue = java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8.toString());
+            jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie(name, encodedValue);
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24); // 1 day
+            response.addCookie(cookie);
+        } catch (Exception e) {
+            System.err.println("Cookie setup exception: " + e.getMessage());
+        }
     }
 }

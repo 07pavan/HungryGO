@@ -31,11 +31,53 @@ public class CheckoutServlet extends HttpServlet {
             throws ServletException, IOException {
         System.out.println("HTTP GET: CheckoutServlet verification of user authentication constraints.");
         
+        HttpSession session = request.getSession();
         // Check if user is logged in
-        if (request.getSession().getAttribute("username") == null) {
-            response.sendRedirect("login");
+        if (session.getAttribute("username") == null) {
+            response.sendRedirect(request.getContextPath() + "/login?msg=auth_required");
             return;
         }
+
+        Cart cart = (Cart) session.getAttribute("cart");
+        if (cart == null || cart.getItems().isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/cart");
+            return;
+        }
+
+        // Calculate order totals on the server side using PricingConfig
+        BigDecimal subtotal = cart.getTotalPrice();
+        BigDecimal discount = BigDecimal.ZERO;
+        
+        boolean promoApplied = false;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("promoApplied") && c.getValue().equals("true")) {
+                    promoApplied = true;
+                    break;
+                }
+            }
+        }
+        
+        if (promoApplied && subtotal.compareTo(BigDecimal.ZERO) > 0) {
+            discount = com.hungrygo.util.PricingConfig.PROMO_DISCOUNT;
+            if (subtotal.compareTo(discount) < 0) {
+                discount = subtotal;
+            }
+        }
+        
+        BigDecimal deliveryFee = subtotal.compareTo(BigDecimal.ZERO) > 0 ? com.hungrygo.util.PricingConfig.DELIVERY_FEE : BigDecimal.ZERO;
+        BigDecimal taxFee = subtotal.compareTo(BigDecimal.ZERO) > 0 ? com.hungrygo.util.PricingConfig.TAX_FEE : BigDecimal.ZERO;
+        BigDecimal grandTotal = subtotal.subtract(discount).add(deliveryFee).add(taxFee);
+
+        // Feed parameters into request scopes
+        request.setAttribute("cartItems", cart.getItems().values());
+        request.setAttribute("subtotal", subtotal);
+        request.setAttribute("discount", discount);
+        request.setAttribute("deliveryFee", deliveryFee);
+        request.setAttribute("taxFee", taxFee);
+        request.setAttribute("gtotal", grandTotal);
+        request.setAttribute("promoApplied", promoApplied);
 
         request.getRequestDispatcher("/jsp/checkout.jsp").forward(request, response);
     }
@@ -47,7 +89,7 @@ public class CheckoutServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         if (session.getAttribute("username") == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -67,7 +109,7 @@ public class CheckoutServlet extends HttpServlet {
 
         Cart cart = (Cart) session.getAttribute("cart");
         if (cart == null || cart.getItems().isEmpty()) {
-            response.sendRedirect("cart");
+            response.sendRedirect(request.getContextPath() + "/cart");
             return;
         }
 
@@ -90,14 +132,14 @@ public class CheckoutServlet extends HttpServlet {
         }
         
         if (promoApplied && subtotal.compareTo(BigDecimal.ZERO) > 0) {
-            discount = new BigDecimal("2.00");
+            discount = com.hungrygo.util.PricingConfig.PROMO_DISCOUNT;
             if (subtotal.compareTo(discount) < 0) {
                 discount = subtotal;
             }
         }
         
-        BigDecimal deliveryFee = subtotal.compareTo(BigDecimal.ZERO) > 0 ? new BigDecimal("1.50") : BigDecimal.ZERO;
-        BigDecimal taxFee = subtotal.compareTo(BigDecimal.ZERO) > 0 ? new BigDecimal("0.50") : BigDecimal.ZERO;
+        BigDecimal deliveryFee = subtotal.compareTo(BigDecimal.ZERO) > 0 ? com.hungrygo.util.PricingConfig.DELIVERY_FEE : BigDecimal.ZERO;
+        BigDecimal taxFee = subtotal.compareTo(BigDecimal.ZERO) > 0 ? com.hungrygo.util.PricingConfig.TAX_FEE : BigDecimal.ZERO;
         BigDecimal grandTotal = subtotal.subtract(discount).add(deliveryFee).add(taxFee);
 
         // Convert cart items to order entities
@@ -137,10 +179,14 @@ public class CheckoutServlet extends HttpServlet {
             cartDataCookie.setPath("/");
             response.addCookie(cartDataCookie);
 
-            // Redirect to the order confirmation page
-            response.sendRedirect("jsp/success.jsp?orderId=" + orderId + "&total=" + grandTotal.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            // Store order details in session safely (removing URL param dependency)
+            session.setAttribute("lastOrderId", orderId);
+            session.setAttribute("lastOrderTotal", grandTotal.setScale(2, java.math.RoundingMode.HALF_UP).toString());
+
+            // Redirect to the success servlet mapping
+            response.sendRedirect(request.getContextPath() + "/success");
         } else {
-            response.sendRedirect("checkout?error=failed");
+            response.sendRedirect(request.getContextPath() + "/checkout?error=failed");
         }
     }
 }

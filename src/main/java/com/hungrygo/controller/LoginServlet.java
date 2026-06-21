@@ -53,14 +53,14 @@ public class LoginServlet extends HttpServlet {
             expireCookie(response, "cartCount");
 
             // Redirect back to home page
-            response.sendRedirect("index?msg=logged_out");
+            response.sendRedirect(request.getContextPath() + "/index?msg=logged_out");
             return;
         }
 
-        // If user is already logged in, redirect to restaurants page
+        // If user is already logged in, redirect to home page
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("username") != null) {
-            response.sendRedirect("restaurants");
+            response.sendRedirect(request.getContextPath() + "/index");
             return;
         }
 
@@ -102,10 +102,10 @@ public class LoginServlet extends HttpServlet {
             addStateCookie(response, "address", authenticatedUser.getAddress());
             addStateCookie(response, "cartCount", "2");
 
-            System.out.println("Login successful. Redirecting to restaurants.jsp...");
-            
-            // Redirect to restaurants
-            response.sendRedirect("restaurants");
+            System.out.println("Login successful. Redirecting to /index (home)...");
+
+            // Redirect to home page (HomeServlet → index.jsp)
+            response.sendRedirect(request.getContextPath() + "/index");
         } else {
             System.out.println("Login failed for user " + email);
             request.setAttribute("error", "Incorrect email address or password. Please try again!");

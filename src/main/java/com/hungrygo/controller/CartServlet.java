@@ -40,6 +40,44 @@ public class CartServlet extends HttpServlet {
             session.setAttribute("cart", cart);
         }
         
+        // Calculate totals dynamically on the server
+        java.math.BigDecimal subtotal = cart.getTotalPrice();
+        java.math.BigDecimal discount = java.math.BigDecimal.ZERO;
+        
+        boolean promoApplied = false;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("promoApplied") && c.getValue().equals("true")) {
+                    promoApplied = true;
+                    break;
+                }
+            }
+        }
+        
+        if (promoApplied && subtotal.compareTo(java.math.BigDecimal.ZERO) > 0) {
+            discount = com.hungrygo.util.PricingConfig.PROMO_DISCOUNT;
+            if (subtotal.compareTo(discount) < 0) {
+                discount = subtotal;
+            }
+        }
+        
+        java.math.BigDecimal deliveryFee = subtotal.compareTo(java.math.BigDecimal.ZERO) > 0 ? com.hungrygo.util.PricingConfig.DELIVERY_FEE : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal taxFee = subtotal.compareTo(java.math.BigDecimal.ZERO) > 0 ? com.hungrygo.util.PricingConfig.TAX_FEE : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal gtotal = subtotal.subtract(discount).add(deliveryFee).add(taxFee);
+        
+        // Feed parameters back into request scopes
+        request.setAttribute("cartItems", cart.getItems().values());
+        request.setAttribute("subtotal", subtotal);
+        request.setAttribute("discount", discount);
+        request.setAttribute("deliveryFee", deliveryFee);
+        request.setAttribute("taxFee", taxFee);
+        request.setAttribute("gtotal", gtotal);
+        request.setAttribute("promoApplied", promoApplied);
+        
+        // Synchronize navbar cartCount
+        session.setAttribute("cartSize", cart.getCartSize());
+        
         // Update cart count cookie for frontend
         int cartCount = cart.getCartSize();
         Cookie countCookie = new Cookie("cartCount", String.valueOf(cartCount));
@@ -111,8 +149,11 @@ public class CartServlet extends HttpServlet {
             }
         }
 
-        // Sync cart count cookie
+        // Sync cart count cookie and session attributes
         int cartCount = cart.getCartSize();
+        session.setAttribute("cart", cart);
+        session.setAttribute("cartSize", cartCount);
+        
         Cookie countCookie = new Cookie("cartCount", String.valueOf(cartCount));
         countCookie.setPath("/");
         response.addCookie(countCookie);

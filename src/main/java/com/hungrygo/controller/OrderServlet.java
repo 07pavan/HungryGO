@@ -30,7 +30,7 @@ public class OrderServlet extends HttpServlet {
         HttpSession session = request.getSession();
         // Auth gate
         if (session.getAttribute("username") == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
