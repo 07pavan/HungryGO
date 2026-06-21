@@ -169,9 +169,7 @@ public class OrderDAOImpl implements OrderDAO {
         List<Order> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement psOrders = null;
-        PreparedStatement psItems = null;
         ResultSet rsOrders = null;
-        ResultSet rsItems = null;
         try {
             conn = DBConnection.getConnection();
             psOrders = conn.prepareStatement(SELECT_ORDERS_BY_USER);
@@ -182,17 +180,18 @@ public class OrderDAOImpl implements OrderDAO {
                 list.add(order);
             }
             
-            // For each order, fetch items
+            // For each order, fetch items using local try-with-resources to prevent leaks
             for (Order order : list) {
-                psItems = conn.prepareStatement(SELECT_ITEMS_BY_ORDER);
-                psItems.setInt(1, order.getId());
-                rsItems = psItems.executeQuery();
-                while (rsItems.next()) {
-                    OrderItem item = extractOrderItemFromResultSet(rsItems);
-                    item.setMenuItem(getMenuItemForOrderItem(conn, item.getMenuItemId()));
-                    order.addOrderItem(item);
+                try (PreparedStatement psItems = conn.prepareStatement(SELECT_ITEMS_BY_ORDER)) {
+                    psItems.setInt(1, order.getId());
+                    try (ResultSet rsItems = psItems.executeQuery()) {
+                        while (rsItems.next()) {
+                            OrderItem item = extractOrderItemFromResultSet(rsItems);
+                            item.setMenuItem(getMenuItemForOrderItem(conn, item.getMenuItemId()));
+                            order.addOrderItem(item);
+                        }
+                    }
                 }
-                DBConnection.closeResources(rsItems, psItems);
             }
         } catch (SQLException e) {
             System.err.println("JDBC getOrdersByUser error: " + e.getMessage());
@@ -208,9 +207,7 @@ public class OrderDAOImpl implements OrderDAO {
         List<Order> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement psOrders = null;
-        PreparedStatement psItems = null;
         ResultSet rsOrders = null;
-        ResultSet rsItems = null;
         try {
             conn = DBConnection.getConnection();
             psOrders = conn.prepareStatement(SELECT_ALL_ORDERS);
@@ -220,17 +217,18 @@ public class OrderDAOImpl implements OrderDAO {
                 list.add(order);
             }
             
-            // Fetch items
+            // Fetch items using local try-with-resources to prevent leaks
             for (Order order : list) {
-                psItems = conn.prepareStatement(SELECT_ITEMS_BY_ORDER);
-                psItems.setInt(1, order.getId());
-                rsItems = psItems.executeQuery();
-                while (rsItems.next()) {
-                    OrderItem item = extractOrderItemFromResultSet(rsItems);
-                    item.setMenuItem(getMenuItemForOrderItem(conn, item.getMenuItemId()));
-                    order.addOrderItem(item);
+                try (PreparedStatement psItems = conn.prepareStatement(SELECT_ITEMS_BY_ORDER)) {
+                    psItems.setInt(1, order.getId());
+                    try (ResultSet rsItems = psItems.executeQuery()) {
+                        while (rsItems.next()) {
+                            OrderItem item = extractOrderItemFromResultSet(rsItems);
+                            item.setMenuItem(getMenuItemForOrderItem(conn, item.getMenuItemId()));
+                            order.addOrderItem(item);
+                        }
+                    }
                 }
-                DBConnection.closeResources(rsItems, psItems);
             }
         } catch (SQLException e) {
             System.err.println("JDBC getAllOrders error: " + e.getMessage());
