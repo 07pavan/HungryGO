@@ -41,7 +41,40 @@ public class RestaurantServlet extends HttpServlet {
         } else if (cuisine != null && !cuisine.trim().isEmpty()) {
             restaurantList = restaurantDAO.getRestaurantsByCuisine(cuisine);
         } else if (category != null && !category.trim().isEmpty()) {
-            restaurantList = restaurantDAO.getRestaurantsByCuisine(category);
+            String cat = category.trim().toLowerCase();
+            if (cat.equals("thali")) {
+                restaurantList = restaurantDAO.getRestaurantsByCuisine("Thali");
+                List<Restaurant> extra = restaurantDAO.getRestaurantsByCuisine("Meals");
+                List<Restaurant> extra2 = restaurantDAO.getRestaurantsByCuisine("Indian");
+                for (Restaurant r : extra) {
+                    if (restaurantList.stream().noneMatch(x -> x.getId() == r.getId())) {
+                        restaurantList.add(r);
+                    }
+                }
+                for (Restaurant r : extra2) {
+                    if (restaurantList.stream().noneMatch(x -> x.getId() == r.getId())) {
+                        restaurantList.add(r);
+                    }
+                }
+            } else if (cat.equals("burger")) {
+                restaurantList = restaurantDAO.getRestaurantsByCuisine("Burger");
+                List<Restaurant> extra = restaurantDAO.getRestaurantsByCuisine("American");
+                for (Restaurant r : extra) {
+                    if (restaurantList.stream().noneMatch(x -> x.getId() == r.getId())) {
+                        restaurantList.add(r);
+                    }
+                }
+            } else if (cat.equals("desserts") || cat.equals("dessert")) {
+                restaurantList = restaurantDAO.getRestaurantsByCuisine("Dessert");
+                List<Restaurant> extra = restaurantDAO.getRestaurantsByCuisine("Sweet");
+                for (Restaurant r : extra) {
+                    if (restaurantList.stream().noneMatch(x -> x.getId() == r.getId())) {
+                        restaurantList.add(r);
+                    }
+                }
+            } else {
+                restaurantList = restaurantDAO.getRestaurantsByCuisine(category);
+            }
         } else {
             restaurantList = restaurantDAO.getAllRestaurants();
         }
