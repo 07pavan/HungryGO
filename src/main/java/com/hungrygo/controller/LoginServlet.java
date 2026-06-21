@@ -17,125 +17,145 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Servlet controller handling database-driven user authentication, secure session management,
- * and standard logout operations.
+ * Handles all user authentication for HungryGO.
+ *
+ * Supported flows:
+ *   GET  /login                    → Show the login form
+ *   GET  /login?registered=true    → Show login form with a "registration success" banner
+ *   GET  /login?msg=auth_required  → Show login form with a "please sign in" warning
+ *   GET  /login?action=logout      → Destroy the current session and redirect home
+ *   POST /login                    → Validate credentials; on success redirect to /index
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    
-    // User data access layer
+
+    // Data access layer — talks to the `users` table
     private final UserDAO userDAO = new UserDAOImpl();
 
+    // -----------------------------------------------------------------------
+    // GET  /login
+    // -----------------------------------------------------------------------
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String action = request.getParameter("action");
-        
+
+        // --- Handle Sign Out ---
         if ("logout".equalsIgnoreCase(action)) {
-            // Invalidate the current session
             HttpSession session = request.getSession(false);
             if (session != null) {
-                session.removeAttribute("user_id");
-                session.removeAttribute("username");
-                session.removeAttribute("email");
-                session.removeAttribute("phone");
-                session.removeAttribute("address");
-                session.invalidate();
-                System.out.println("HungryGO session invalidated cleanly.");
+                session.invalidate();   // wipe the whole session cleanly
+                System.out.println("HungryGO: session invalidated — user signed out.");
             }
 
-            // Expire cookies
+            // Expire all state cookies so the browser forgets the user
             expireCookie(response, "username");
             expireCookie(response, "email");
             expireCookie(response, "phone");
             expireCookie(response, "address");
             expireCookie(response, "cartCount");
 
-            // Redirect back to home page
-            response.sendRedirect(request.getContextPath() + "/index?msg=logged_out");
+            // Send back to home with a goodbye query param (login.jsp reads it)
+            response.sendRedirect(request.getContextPath() + "/login?msg=logged_out");
             return;
         }
 
-        // If user is already logged in, redirect to home page
+        // --- Guard: already logged in? Send straight to home ---
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("username") != null) {
+        if (session != null && session.getAttribute("user_id") != null) {
             response.sendRedirect(request.getContextPath() + "/index");
             return;
         }
 
-        // Forward to login page
+        // --- Pass "just registered" flag so login.jsp shows the success banner ---
+        if ("true".equals(request.getParameter("registered"))) {
+            request.setAttribute("registered", true);
+        }
+
+        // Show the login form
         request.getRequestDispatcher("/jsp/login.jsp").forward(request, response);
     }
 
+    // -----------------------------------------------------------------------
+    // POST /login  (form submission)
+    // -----------------------------------------------------------------------
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
-        
-        System.out.println("Processing login request for: " + email);
 
-        if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            request.setAttribute("error", "Please provide both email address and password.");
+        String email    = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        System.out.println("HungryGO: login attempt for → " + email);
+
+        // --- Basic field presence check ---
+        if (isBlank(email) || isBlank(password)) {
+            request.setAttribute("error", "Please enter both your email address and password.");
             request.getRequestDispatcher("/jsp/login.jsp").forward(request, response);
             return;
         }
 
-        // Validate user credentials
+        // --- Check credentials against the database ---
         User authenticatedUser = userDAO.validateUser(email.trim().toLowerCase(), password);
 
         if (authenticatedUser != null) {
-            // Create a new session and save user info
+            // Create a brand-new session to prevent session-fixation attacks
             HttpSession session = request.getSession(true);
-            session.setAttribute("user_id", authenticatedUser.getId());
+            session.setAttribute("user_id",  authenticatedUser.getId());
             session.setAttribute("username", authenticatedUser.getName());
-            session.setAttribute("email", authenticatedUser.getEmail());
-            session.setAttribute("phone", authenticatedUser.getPhone());
-            session.setAttribute("address", authenticatedUser.getAddress());
-            session.setAttribute("cartSize", 1); // default active item count
+            session.setAttribute("email",    authenticatedUser.getEmail());
+            session.setAttribute("phone",    authenticatedUser.getPhone());
+            session.setAttribute("address",  authenticatedUser.getAddress());
+            session.setAttribute("cartSize", 0);   // fresh cart count on every login
 
-            // Set cookies for frontend sync
+            // Sync lightweight cookies for any client-side reads
             addStateCookie(response, "username", authenticatedUser.getName());
-            addStateCookie(response, "email", authenticatedUser.getEmail());
-            addStateCookie(response, "phone", authenticatedUser.getPhone());
-            addStateCookie(response, "address", authenticatedUser.getAddress());
-            addStateCookie(response, "cartCount", "2");
+            addStateCookie(response, "email",    authenticatedUser.getEmail());
+            addStateCookie(response, "phone",    authenticatedUser.getPhone());
+            addStateCookie(response, "address",  authenticatedUser.getAddress());
 
-            System.out.println("Login successful. Redirecting to /index (home)...");
+            System.out.println("HungryGO: login success for " + email + " — redirecting to /index");
 
-            // Redirect to home page (HomeServlet → index.jsp)
+            // Drop the user onto the home page
             response.sendRedirect(request.getContextPath() + "/index");
+
         } else {
-            System.out.println("Login failed for user " + email);
-            request.setAttribute("error", "Incorrect email address or password. Please try again!");
+            System.out.println("HungryGO: login failed for " + email);
+            request.setAttribute("error", "Incorrect email or password. Please try again.");
             request.getRequestDispatcher("/jsp/login.jsp").forward(request, response);
         }
     }
 
-    /**
-     * Helper to set a state cookie for frontend sync
-     */
+    // -----------------------------------------------------------------------
+    // Private helpers
+    // -----------------------------------------------------------------------
+
+    /** Adds a browser cookie that stays alive for 1 day (used for client-side state). */
     private void addStateCookie(HttpServletResponse response, String name, String value) {
         if (value == null) return;
         try {
-            String encodedValue = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-            Cookie cookie = new Cookie(name, encodedValue);
+            String encoded = URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+            Cookie cookie  = new Cookie(name, encoded);
             cookie.setPath("/");
-            cookie.setMaxAge(60 * 60 * 24); // 1 day
+            cookie.setMaxAge(60 * 60 * 24); // 24 hours
             response.addCookie(cookie);
         } catch (Exception e) {
-            System.err.println("Cookie setup exception: " + e.getMessage());
+            System.err.println("HungryGO: cookie error — " + e.getMessage());
         }
     }
 
-    /**
-     * Helper to expire a state cookie
-     */
+    /** Sets a cookie's max-age to 0 so the browser deletes it immediately. */
     private void expireCookie(HttpServletResponse response, String name) {
         Cookie cookie = new Cookie(name, "");
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
+    }
+
+    /** Returns true if a string is null or blank. */
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 }
