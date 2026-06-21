@@ -133,3 +133,154 @@
         </div>
     </div>
 </nav>
+
+<!-- Floating Bottom Cart Bar -->
+<c:set var="cartSize" value="${not empty sessionScope.cartSize ? sessionScope.cartSize : 0}" />
+<div id="floating-cart-bar" class="floating-cart-bar ${cartSize > 0 ? 'show' : 'd-none'}">
+    <div class="floating-cart-content">
+        <div class="floating-cart-info">
+            <span class="cart-icon-wrapper"><i class="bi bi-cart3"></i></span>
+            <span id="floating-cart-text" class="fw-bold">
+                <span id="floating-cart-qty">${cartSize}</span> ${cartSize == 1 ? 'Item' : 'Items'} Selected
+            </span>
+        </div>
+        <a href="${pageContext.request.contextPath}/cart" class="btn btn-orange btn-order rounded-pill fw-bold" id="floating-cart-order-btn">
+            Order Now <i class="bi bi-arrow-right-short ms-1"></i>
+        </a>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   GLOBAL CART UI HELPERS — available to every page
+   ============================================================ */
+(function() {
+    var path = window.location.pathname;
+    var hidePages = ['/cart', '/checkout', '/success', '/login', '/register'];
+    var shouldHide = hidePages.some(function(p) { return path.indexOf(p) !== -1; });
+
+    var bottomBar = document.getElementById('floating-cart-bar');
+
+    /* Hide bar on checkout / auth pages immediately */
+    if (shouldHide && bottomBar) {
+        bottomBar.style.setProperty('display', 'none', 'important');
+    }
+
+    /* ----------------------------------------------------------
+       updateCartUI(cartSize)
+       Called after a successful AJAX add — updates badge + bar
+    ---------------------------------------------------------- */
+    window.updateCartUI = function(cartSize) {
+        /* 1. Navbar badge */
+        var badge = document.getElementById('nav-cart-badge');
+        if (badge) {
+            badge.innerText = cartSize;
+            badge.classList.remove('pulse-animation');
+            void badge.offsetWidth;          /* reflow trick to restart animation */
+            badge.classList.add('pulse-animation');
+        }
+
+        /* 2. Floating bar */
+        var bar = document.getElementById('floating-cart-bar');
+        if (bar && !shouldHide) {
+            var textSpan = document.getElementById('floating-cart-text');
+            if (textSpan) {
+                textSpan.innerHTML =
+                    '<span id="floating-cart-qty" class="font-mono">' + cartSize + '</span> ' +
+                    (cartSize === 1 ? 'Item' : 'Items') + ' Selected';
+            }
+            if (cartSize > 0) {
+                bar.classList.remove('d-none');
+                setTimeout(function() { bar.classList.add('show'); }, 10);
+            } else {
+                bar.classList.remove('show');
+                setTimeout(function() { bar.classList.add('d-none'); }, 400);
+            }
+        }
+    };
+
+    /* ----------------------------------------------------------
+       initCartForms()
+       Call this at the BOTTOM of any page that has Add-to-cart
+       forms (menu.jsp, burger-detail.jsp, index.jsp …).
+       It scans for forms with action="/cart" + input[name=action]=add
+       and wires up the AJAX intercept on each one.
+    ---------------------------------------------------------- */
+    window.initCartForms = function() {
+        var forms = Array.from(document.querySelectorAll('form')).filter(function(f) {
+            var action = f.getAttribute('action') || '';
+            var ai = f.querySelector('input[name="action"]');
+            return action.indexOf('/cart') !== -1 && ai && ai.value === 'add';
+        });
+
+        forms.forEach(function(form) {
+            /* Guard: don't attach twice */
+            if (form.dataset.ajaxBound === '1') return;
+            form.dataset.ajaxBound = '1';
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                var btn = form.querySelector('button[type="submit"]');
+                var origHtml = btn ? btn.innerHTML : '';
+                var isOutline = btn ? btn.classList.contains('btn-outline-orange') : false;
+
+                /* Show loading state */
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Adding...';
+                }
+
+                var params = new URLSearchParams(new FormData(form));
+
+                fetch(form.getAttribute('action'), {
+                    method: 'POST',
+                    body: params,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then(function(response) {
+                    if (response.status === 401) {
+                        return response.json().then(function(d) {
+                            window.location.href = d.redirect || '${pageContext.request.contextPath}/login?msg=auth_required';
+                            throw new Error('auth');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data && data.success) {
+                        /* Green checkmark state on button */
+                        if (btn) {
+                            btn.classList.remove('btn-outline-orange', 'btn-orange');
+                            btn.classList.add('btn-success');
+                            btn.innerHTML = '<i class="bi bi-check-lg"></i> Added!';
+                            setTimeout(function() {
+                                btn.disabled = false;
+                                btn.innerHTML = origHtml;
+                                btn.classList.remove('btn-success');
+                                btn.classList.add(isOutline ? 'btn-outline-orange' : 'btn-orange');
+                            }, 1600);
+                        }
+                        window.updateCartUI(data.cartSize);
+                    } else if (data && data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                })
+                .catch(function(err) {
+                    if (err.message !== 'auth') {
+                        console.error('Cart error:', err);
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = origHtml;
+                        }
+                    }
+                });
+            });
+        });
+    };
+}());
+</script>
