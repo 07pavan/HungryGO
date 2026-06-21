@@ -8,6 +8,18 @@
     <display-name>HungryGO</display-name>
 
     <!-- ============================================================ -->
+    <!-- Security Filter - Enforces Login for Protected Pages          -->
+    <!-- ============================================================ -->
+    <filter>
+        <filter-name>AuthenticationFilter</filter-name>
+        <filter-class>com.hungrygo.filter.AuthenticationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthenticationFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- ============================================================ -->
     <!-- Servlet Declarations                                          -->
     <!-- ============================================================ -->
 
